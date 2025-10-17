@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  emqx:
+    image: emqx/emqx:latest
+    container_name: emqx
+    restart: always
+    environment:
+      - EMQX_NAME=emqx
+      - EMQX_HOST=127.0.0.1
+      # Add other EMQX env vars as needed, e.g., for custom configs:
+      # - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      # - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
+    ports:
+      - "1883:1883"   # MQTT TCP port
+      - "18083:18083" # EMQX Dashboard (HTTP)
+      # Add more ports if needed, e.g.:
+      # - "8883:8883" # MQTT over SSL
+      # - "8083:8083" # MQTT over WebSocket
+    volumes:
+      - "../files/emqx-data:/opt/emqx/data"
+      - "../files/emqx-etc:/opt/emqx/etc"
+      - "../files/emqx-log:/opt/emqx/log"
+      # Use ../files/ prefix for persistence in Dokploy to avoid data loss on redeploys
