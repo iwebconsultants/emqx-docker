@@ -2,23 +2,27 @@ version: '3'
 
 services:
   emqx:
-    image: emqx/emqx:latest
+    image: emqx/emqx:5.8.1
     container_name: emqx
     restart: always
     environment:
       - EMQX_NAME=emqx
       - EMQX_HOST=127.0.0.1
-      # Add other EMQX env vars as needed, e.g., for custom configs:
-      # - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
-      # - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=securepassword123
+      - EMQX_LISTENER__TCP__EXTERNAL__PORT=1883
+      - EMQX_LOG__LEVEL=info
     ports:
       - "1883:1883"   # MQTT TCP port
       - "18083:18083" # EMQX Dashboard (HTTP)
-      # Add more ports if needed, e.g.:
+      # Optional: Add SSL or WebSocket ports if needed
       # - "8883:8883" # MQTT over SSL
       # - "8083:8083" # MQTT over WebSocket
     volumes:
       - "../files/emqx-data:/opt/emqx/data"
-      - "../files/emqx-etc:/opt/emqx/etc"
       - "../files/emqx-log:/opt/emqx/log"
-      # Use ../files/ prefix for persistence in Dokploy to avoid data loss on redeploys
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18083/api/v5/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
