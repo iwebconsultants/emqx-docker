@@ -3,7 +3,6 @@ version: '3'
 services:
   emqx:
     image: emqx/emqx:5.8.1
-    container_name: emqx
     restart: always
     environment:
       - EMQX_NAME=emqx
@@ -13,11 +12,12 @@ services:
       - EMQX_LISTENER__TCP__EXTERNAL__PORT=1883
       - EMQX_LOG__LEVEL=info
     ports:
-      - "1883:1883"   # MQTT TCP port
-      - "18083:18083" # EMQX Dashboard (HTTP)
+      - 1883    # MQTT TCP port (internal exposure)
+      - 18083   # EMQX Dashboard (HTTP, for Traefik routing)
     volumes:
-      - "../files/emqx-data:/opt/emqx/data"
-      - "../files/emqx-log:/opt/emqx/log"
+      - ../files/emqx-data:/opt/emqx/data
+      - ../files/emqx-etc:/opt/emqx/etc
+      - ../files/emqx-log:/opt/emqx/log
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:18083/api/v5/status"]
       interval: 30s
